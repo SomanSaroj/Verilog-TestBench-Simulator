@@ -27,3 +27,39 @@ def extract_port_directions(code):
         for signal in signals:
             port_info[signal] = (direction, width)
     return port_info
+
+def generate_testbench_skeleton(module_name, ports, port_info):
+    tb = []
+    tb.append("`timescale 1ns/1ns\n")
+    tb.append(f"module {module_name}_tb;\n")
+
+    for name in ports:
+        direction, width = port_info.get(name, ('input', ''))
+        dtype = 'reg' if direction == 'input' else 'wire'
+        line = f"{dtype} {width} {name};" if width else f"{dtype} {name};"
+        tb.append(line)
+
+    for name in ports:
+        if port_info.get(name, ('input',))[0] == 'output':
+            tb.append(f"reg expected_{name};")
+
+    tb.append("")
+    tb.append(f"{module_name} dut (")
+    for i, name in enumerate(ports):
+        comma = "," if i < len(ports) - 1 else ""
+        tb.append(f"    .{name}({name}){comma}")
+    tb.append(");\n")
+
+    tb.append("// USER TESTBENCH BLOCK START")
+    tb.append("initial begin")
+    tb.append("    // Your stimulus will be inserted here")
+    tb.append("end")
+    tb.append("// USER TESTBENCH BLOCK END\n")
+
+    tb.append("initial begin")
+    tb.append(f"    $dumpfile(\"{module_name}_KIT/{module_name}_vcd.vcd\");")
+    tb.append(f"    $dumpvars(0, {module_name}_tb);")
+    tb.append("end\n")
+
+    tb.append("endmodule")
+    return "\n".join(tb)
