@@ -17,3 +17,13 @@ def parse_verilog_header(file_path):
     else:
         print(" No module declaration found.")
         return None, [], ""
+
+def extract_port_directions(code):
+    port_info = {}
+    matches = re.findall(r'(input|output)\s+(\[.*?\])?\s*([^;]+);', code)
+    for direction, width, signal_list in matches:
+        width = width if width else ""
+        signals = signal_list.replace(",", " ").split()
+        for signal in signals:
+            port_info[signal] = (direction, width)
+    return port_info
