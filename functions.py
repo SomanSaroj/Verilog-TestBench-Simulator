@@ -63,3 +63,12 @@ def generate_testbench_skeleton(module_name, ports, port_info):
 
     tb.append("endmodule")
     return "\n".join(tb)
+
+def insert_stimulus(tb_code, stimulus_txt):
+    with open(stimulus_txt, 'r') as f:
+        stimulus_code = f.read()
+    return tb_code.replace(
+        "// USER TESTBENCH BLOCK START\ninitial begin\n    // Your stimulus will be inserted here\nend\n// USER TESTBENCH BLOCK END",
+        stimulus_code
+    )
+
